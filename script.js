@@ -1,7 +1,145 @@
-const allClearButton = document.querySelectorAll("[data-all-clear")
-const operationButtons = document.querySelectorAll("[data-operations")
-const numberButtons = document.querySelectorAll("[data-number")
-const equalButton = document.querySelectorAll("[data-equal")
-const clearButton = document.querySelectorAll("[data-clear")
-const previousDisplayTextElement = document.querySelectorAll("[data-previus-display")
-const currentDisplayTextElement = document.querySelectorAll("[data-current-display")
+class Calculator {
+    constructor(previousDisplayTextElement, currentDisplayTextElement) {
+        this.previousDisplayTextElement = previousDisplayTextElement;
+        this.currentDisplayTextElement = currentDisplayTextElement;
+        this.allClear()
+    }
+
+    allClear() {
+        this.currentDisplay = ""
+        this.previousDisplay = ""
+        this.operation = undefined
+    }
+
+    clear() {
+        this.currentDisplay = ""
+    }
+
+    appendNumber(number) {
+        if (number === "." && this.currentDisplay.includes(".")) {
+            return
+        }
+        this.currentDisplay = this.currentDisplay.toString() + number.toString()
+    }
+
+    chooseOperation(operation) {
+        if (this.currentDisplay === "") {
+            return
+        }
+        if (this.previousDisplay !== "") {
+            this.compute()
+        }
+        this.operation = operation
+        this.previousDisplay = this.currentDisplay
+        this.currentDisplay = ""
+    }
+
+    signalChange() {
+        if (this.currentDisplay === "") {
+            return
+        }
+        if (this.previousDisplay !== "") {
+            this.compute()
+        }
+    }
+
+    compute() {
+        let computation
+        const previous = parseFloat(this.previousDisplay)
+        const current = parseFloat(this.currentDisplay)
+        if (isNaN(previous) || isNaN(current)) {
+            return
+        }
+        switch (this.operation) {
+            case "+":
+                computation = previous + current
+                break
+            case "-":
+                computation = previous - current
+                break
+            case "x":
+                computation = previous * current
+                break
+            case "÷":
+                computation = previous / current
+                break
+            default:
+                return
+        }
+        this.currentDisplay = computation
+        this.operation = undefined
+        this.previousDisplay = ""
+    }
+
+    getDisplayNumber(number) {
+        const stringNumber = number.toString()
+        const intergerDigits = parseFloat(stringNumber.split(".")[0])
+        const decimalDigits = stringNumber.split(".")[1]
+        let intergerDisplay
+        if (isNaN(intergerDigits)) {
+            intergerDisplay = ""
+        } else {
+            intergerDisplay = intergerDigits.toLocaleString("en", { maximumFractionDigits: 0 })
+        }
+        if (decimalDigits != null) {
+            return `${intergerDisplay}.${decimalDigits}`
+        } else {
+            return intergerDisplay
+        }
+    }
+
+    updateDisplay() {
+        this.currentDisplayTextElement.innerText = this.getDisplayNumber(this.currentDisplay)
+        if (this.operation != null) {
+            this.previousDisplayTextElement.innerText = `${this.getDisplayNumber(this.previousDisplay)} ${this.operation}`
+        } else {
+            this.previousDisplayTextElement.innerText = ``
+        }
+    }
+}
+
+
+const allClearButton = document.querySelector("[data-all-clear]")
+const operationButtons = document.querySelectorAll("[data-operation]")
+const numberButtons = document.querySelectorAll("[data-number]")
+const equalButton = document.querySelector("[data-equals]")
+const clearButton = document.querySelector("[data-clear]")
+const signalButton = document.querySelector("[data-signal]")
+const previousDisplayTextElement = document.querySelector("[data-display-previus]")
+const currentDisplayTextElement = document.querySelector("[data-display-current]")
+
+const calculator = new Calculator(previousDisplayTextElement, currentDisplayTextElement)
+
+numberButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        calculator.appendNumber(button.innerText)
+        calculator.updateDisplay()
+    })
+})
+
+operationButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        calculator.chooseOperation(button.innerText)
+        calculator.updateDisplay()
+    })
+})
+
+equalButton.addEventListener("click", () => {
+    calculator.compute()
+    calculator.updateDisplay()
+})
+
+allClearButton.addEventListener("click", () => {
+    calculator.allClear()
+    calculator.updateDisplay()
+})
+
+clearButton.addEventListener("click", () => {
+    calculator.clear()
+    calculator.updateDisplay()
+})
+
+signalButton.addEventListener("click", () => {
+    calculator.signalChange()
+    calculator.updateDisplay()
+})
