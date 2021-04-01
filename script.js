@@ -19,6 +19,9 @@ class Calculator {
         if (number === "." && this.currentDisplay.includes(".")) {
             return
         }
+        if (this.currentDisplay.toString().length >= 13) {
+            return
+        }
         this.currentDisplay = this.currentDisplay.toString() + number.toString()
     }
 
@@ -34,13 +37,24 @@ class Calculator {
         this.currentDisplay = ""
     }
 
-    signalChange() {
-        if (this.currentDisplay === "") {
+    signalChange(number) {
+        number = this.currentDisplay.toString()
+        if (number === "") {
             return
         }
-        if (this.previousDisplay !== "") {
-            this.compute()
+        if (number.includes("-")) {
+            return this.currentDisplay = number.split("-")[1]
+        } else {
+            return this.currentDisplay = "-" + number
         }
+    }
+
+    percentage(number) {
+        number = parseFloat(this.currentDisplay.toString())
+        if (number === "") {
+            return
+        }
+        return this.currentDisplay = (number / 100)
     }
 
     compute() {
@@ -74,7 +88,7 @@ class Calculator {
     getDisplayNumber(number) {
         const stringNumber = number.toString()
         const intergerDigits = parseFloat(stringNumber.split(".")[0])
-        const decimalDigits = stringNumber.split(".")[1]
+        let decimalDigits = stringNumber.split(".")[1]
         let intergerDisplay
         if (isNaN(intergerDigits)) {
             intergerDisplay = ""
@@ -82,6 +96,9 @@ class Calculator {
             intergerDisplay = intergerDigits.toLocaleString("en", { maximumFractionDigits: 0 })
         }
         if (decimalDigits != null) {
+            if (decimalDigits.length > 9) {
+                decimalDigits = decimalDigits.slice(0, 10)
+            }
             return `${intergerDisplay}.${decimalDigits}`
         } else {
             return intergerDisplay
@@ -105,6 +122,7 @@ const numberButtons = document.querySelectorAll("[data-number]")
 const equalButton = document.querySelector("[data-equals]")
 const clearButton = document.querySelector("[data-clear]")
 const signalButton = document.querySelector("[data-signal]")
+const percentageButton = document.querySelector("[data-percentage]")
 const previousDisplayTextElement = document.querySelector("[data-display-previus]")
 const currentDisplayTextElement = document.querySelector("[data-display-current]")
 
@@ -141,5 +159,9 @@ clearButton.addEventListener("click", () => {
 
 signalButton.addEventListener("click", () => {
     calculator.signalChange()
+    calculator.updateDisplay()
+})
+percentageButton.addEventListener("click", () => {
+    calculator.percentage()
     calculator.updateDisplay()
 })
