@@ -83,6 +83,15 @@ button:active {
 .block {
   background-color: #191c2f;
 }
+.block.AC {
+  background-color: #e74c06;
+}
+.block.C {
+  background-color: #e74c06;
+}
+.block.equals {
+  background-color: #1a5b6d;
+}
 .num {
   background-color: #121212;
 }
